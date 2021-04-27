@@ -33,3 +33,51 @@
 
 # Flink部署
 
+## 项目结构
+
+- bin
+- conf
+
+```
+配置文件，格式key:value
+
+# JobManager的堆内存大小（Flink计算过程中的状态保存在本地内存中，属于堆外空间）
+jobmanager.heap.size:1024m
+
+# TaskManager整个进程的总内存大小
+taskmanager.memory.process.size:1728m
+
+# 线程槽位，表示的是并行的最大能力（静态配置），对于每个taskManager而言（实际并行能力为numberTaskSlots*numberOfTaskManager，TM数量在另外配置文件中配置）
+taskmanager.numberTaskSlots:1
+
+# 默认并行度，程序实际执行的并行度
+paralleism.default:1
+```
+
+- examples
+- lib
+
+![image-20210427211045039](image-20210427211045039.png)
+
+## 单机版
+
+- 启动
+
+![image-20210427212118221](image-20210427212118221.png)
+
+- WEB界面提交任务
+
+> 并行度配置优先级：代码>WEB配置>配置文件
+
+![image-20210427221111806](image-20210427221111806.png)
+
+- 命令行提交任务
+
+  ```
+  ./bin/flink run -c com.xxx.ClassName -p 3 path-of-jar --host 192.168.19.128 --port 7777
+  
+  ./bin/flink cancel job_id （flink list -a查看job列表）
+  ```
+
+  
+
