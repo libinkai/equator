@@ -79,5 +79,43 @@ paralleism.default:1
   ./bin/flink cancel job_id （flink list -a查看job列表）
   ```
 
-  
+## Yarn版本
 
+> 要求Flink是有Hadoop（2.2以上）支持的版本，并且集群中安装有HDFS服务。
+
+### Session-cluster模式
+
+![image-20210428110718186](image-20210428110718186.png)
+
+### Per-Job-Cluster模式
+
+![image-20210428110826055](image-20210428110826055.png)
+
+## K8s版本
+
+# 运行时组件
+
+## 运行时的组件
+
+- JobManager
+- TaskManager
+- ResourceManager
+- Dispatcher（非必须）
+
+## 任务提交流程
+
+## 任务调度原理
+
+# 窗口
+
+# 时间语义与watermark
+
+# 状态管理
+
+# 容错机制
+
+# 状态一致性
+
+# Table API与Flink SQL
+
+# CEP
