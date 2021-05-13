@@ -3,6 +3,7 @@
 > 朝花夕拾
 
 - [docker](./docker/index.md)
+- [kafka](./kafka/index.md)
 - [k8s](./k8s/index.md)
 - [Flink](./Flink/index.md)
 - [jwt实践](./jwt实践/index.md)
