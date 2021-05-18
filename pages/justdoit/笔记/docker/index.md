@@ -69,7 +69,162 @@
 - `docker pull 镜像名[:tag]`，下载镜像，分层下载（联合文件系统）。
 - `docker rmi`删除镜像，`docker rmi -f $(docker images -aq)`
 
+# 镜像
+
+- `docker pull`下来的镜像为镜像层，是只读的；用户操作的为容器层。
+- 提交镜像到本地，`docker commit `，相当于VM的快照
+
+## 基础镜像
+
+- 不依赖其他镜像，从scratch构建；其他镜像可以以之为基础进行扩展。一般是迷你版的Linux发行版Docker镜像。
+- Linux操作系统由内核空间以及用户空间组成，内核空间核心是kernel，用户空间文件系统是rootfs。基础镜像直接使用宿主机的kernel，自己提供rootfs。容器只能使用宿主机的kernel而不能进行修改或者升级。
+
+## 容器层
+
+- 当容器启动时，一个新的可写层被加载到镜像的顶层，该层被称为容器层，下面的层级都是镜像层，镜像层都是只读的。多个镜像层之间联合在一起成为联合文件系统，上层的路径会把下层的路径覆盖
+- 只有当需要修改时才复制一份数据，这种特性被称作Copy-on-Write机制。这样就实现了镜像被多个容器共享。
+
+## 构建镜像
+
+### docker commit
+
+> 不建议使用
+
+- 运行容器
+
+- 修改容器
+
+- 将容器保存为新的镜像
+
+  `docker commit old_image_name new_image_name`
+
+### docker file
+
+> 用来构建镜像的构建文件
+
+#### 构建步骤
+
+- 编`dockerfile`文件
+- `docker build -t target_image_name -f dockerfile_path`构建成为镜像
+- `docker run`运行镜像
+- `docker push`发布镜像（DockerHub、阿里云镜像仓库）
+- `docker history` 查看构建历史过程
+
+#### 基础语法
+
+- 关键字都大写
+- 执行顺序为从上到下
+- `#`表示注释
+- 每一个指令都会创建一个新的镜像层并提交
+
+![](dockerfile分层.jpg)
+
+#### 指令
+
+- `FROM` 基础镜像，一般是scratch等
+- `MAINTAINER` 姓名+邮箱，声明作者，`name<email>`
+- `RUN` 镜像构建时运行的命令
+- `COPY` 类似于`ADD`，复制本地文件到镜像，COPY支持两种形式： `COPY src dest`与`COPY ["src", "dest"]`。
+- `ADD`与`COPY`类似，会自动解压
+- `WORKDIR` 指定工作目录，为后面的RUN、CMD、ENTRYPOINT、ADD或COPY指令设置镜像中的当前工作目录
+- `VOLUME` 挂载的目录
+- `EXPOSE `暴露端口
+- `CMD` 容器启动时运行的命令，Dockerfile中可以有多个CMD指令，但只有最后一个生效。CMD可以被docker run之后的参数替换。
+- `ENTRYPOINT`，容器启动时的命令，可以追加。（Dockerfile中可以有多个ENTRYPOINT指令，但只有最后一个生效。CMD或dockerrun之后的参数会被当作参数传递给ENTRYPOINT）
+
+``` 
+# DockerFile 文件名为DockerFile则build时不需要-f参数
+FROM centos
+CMD ["ls","-a"]
+
+docker build -f DockerFile -t test_image .
+
+docker run xxx -l #报错，ls -a被替换为-l
+
+
+# test.df
+FROM centos
+ENTRYPOINT ["ls","-a"]
+
+docker build -f test.df -t test_image .
+
+docker run xxx -l #正常，ls -a被追加为ls -a -l
+```
+
+- `ONBUILD` 构建一个被继承的dockerfile时触发
+- `ENV` 构建时设置环境变量
+
+# 容器
+
+## 运行容器
+
+- 运行容器 `docker run`
+- 指定容器启动时执行的命令
+  - CMD
+  - ENTRYPOINT
+  - docker run命令行中指定
+- 后台运行容器 `-d`参数
+- `--name`参数为容器命名
+- 进入容器
+  - `docker attach`，attach到容器启动命令的终端
+  - `docker exec -it <container> bash|sh`
+  - 区别
+    - attach直接进入容器启动命令的终端，不会启动新的进程。如果想直接在终端中查看启动命令的输出，用attach（当然也可以使用`docker logs -f container_id`）；其他情况使用exec。
+- 容器的分类
+  - 服务类容器，一般使用 `docker run -d`启动，多为数据库服务等
+  - 工具类容器，一般使用`docker run -it`启动，多为临时性容器，如`busybox`
 ## 容器命令
+
+### 运维
+
+- create：先创建容器，稍后启动
+
+- start：运行起来的容器就是一个进程，run命令实际上是create与start的组合
+
+- stop：向容器进程发送SIGTERM信号
+
+- kill：向容器进程发送SIGKILL信号
+
+- restart：先stop、再start
+
+- 服务类容器配置自动重启
+
+  ```
+  --restart=always
+  或者
+  --restart=on-failure:3（最多自动重启三次）
+  ```
+
+- pause、unpause 暂停容器让出CPU
+
+### 限制容器资源
+
+- `-m`、`--memory`，设置内存的使用限额，默认为-1
+- `--memory-swap`，设置内存+交换空间的限额默认为-1，如果只设置`memory`，则`memory-swap`为`memory`的两倍。
+- `-c`，`--cpu-shares`设置使用CPU的权重
+- ` --blkio-weight`设置容器block IO优先级
+- `--device-read|write-bps`，设置bps（byte per second，每秒读写的数据量）
+- `--device-read|write-iops`，设置iops（io per second，每秒IO的次数）
+
+## 容器底层原理
+
+> cgroup实现资源限额，namespace实现资源隔离
+
+### Control Group
+
+- cgroup是操作系统进行资源配置限额的工具，通过命令参数配置资源限额实际上就是在配置cgroup。
+- Linux在`/sys/fs/cgroup`中对资源进行管理配置
+
+### namespace
+
+- Mount namespace让容器看上去拥有整个文件系统
+- 简单地说，UTS namespace让容器有自己的hostname
+- IPC namespace让容器拥有自己的共享内存和信号量（semaphore）来实现进程间通信
+- PID namespace让容器拥有自己独立的一套PID
+- Network namespace让容器拥有自己独立的网卡、IP、路由等资源
+- User namespace让容器能够管理自己的用户，host不能看到容器中创建的用户
+
+## 杂乱
 
 - `docker run [options] image`
 
@@ -114,10 +269,9 @@
 - `docker cp 容器ID:容器path（source） 主机path（target）`
 - `docker stats`查看容器CPU信息
 
-# 镜像详解
+# 网络
 
-- `docker pull`下来的镜像为镜像层，是只读的；用户操作的为容器层。
-- 提交镜像到本地，`docker commit `，相当于VM的快照
+# 存储
 
 # 容器数据卷
 
@@ -146,63 +300,6 @@ docker run -it --name father_container_name  image_name
 
 docker run -it --name son_container_name --volumes-from father_container_name image_name，son_container可以有多个
 ```
-
-# Docker File
-
-> 用来构建镜像的构建文件
-
-## 构建步骤
-
-- 编`dockerfile`文件
-- `docker build -f dockerfile_path`构建成为镜像
-- `docker run`运行镜像
-- `docker push`发布镜像（DockerHub、阿里云镜像仓库）
-- `docker history` 查看构建历史过程
-
-## 基础语法
-
-- 关键字都大写
-- 执行顺序为从上到下
-- `#`表示注释
-- 每一个指令都会创建一个新的镜像层并提交
-
-![](dockerfile分层.jpg)
-
-## 指令
-
-- `FROM` 基础镜像，一般是scratch等
-- `MAINTAINER` 姓名+邮箱，声明作者，`name<email>`
-- `RUN` 镜像构建时运行的命令
-- `ADD` 添加其它镜像，会自动解压
-- `COPY` 类似于`ADD`，复制本地文件到镜像
-- `WORKDIR` 指定工作目录
-- `VOLUME` 挂载的目录
-- `EXPOSE `暴露端口
-- `CMD` 容器启动时运行的命令，可以被替换
-- `ENTRYPOINT`，容器启动时的命令，可以追加
-
-``` 
-# DockerFile 文件名为DockerFile则build时不需要-f参数
-FROM centos
-CMD ["ls","-a"]
-
-docker build -f DockerFile -t test_image .
-
-docker run xxx -l #报错，ls -a被替换为-l
-
-
-# test.df
-FROM centos
-ENTRYPOINT ["ls","-a"]
-
-docker build -f test.df -t test_image .
-
-docker run xxx -l #正常，ls -a被追加为ls -a -l
-```
-
-- `ONBUILD` 构建一个被继承的dockerfile时触发
-- `ENV` 构建时设置环境变量
-
 # Docker网络
 
 ## 基础概念
