@@ -56,3 +56,70 @@
 - 可以看到，由于安装的两个工具软件，CentOS镜像的大小由209M变为268M。通过新的镜像运行一个新的容器，新的容器中可以直接使用`clear`以及`vim`命令。我们通过commit命令成功得到了一个新的镜像。
 
 ## docker file
+
+> 通过commit操作得到的一个缺点之一是镜像的构建过程不透明，可能存在安全隐患。哪天你在路上捡到一个U盘，你敢随便往电脑上插么哈哈哈。docker file是一个记录了镜像构建步骤的文件，是构建镜像的图纸。
+
+### docker file基础
+
+![image-20210523001548698](image-20210523001548698.png)
+
+![image-20210523001623547](image-20210523001623547.png)
+
+- 通过docker file构建镜像的过程如下
+
+```shell
+# 编写docker file文件，文件名默认是Dockerfile
+FROM centos
+RUN yum install -y vim && yum install -y ncurses
+
+# 运行构建命令：docker build [OPTIONS] PATH | URL | -
+docker build -t my-centos-dockerfile .
+
+# . 指的是将当前目录作为构建目录，构建目录文件不宜过多，否则有可能导致构建失败
+```
+
+![image-20210523002323298](image-20210523002323298.png)
+
+- 使用`docker history $image_name`命令可以查看镜像的构建过程，从上图可以看到，镜像`my-centos-dockerfile`比镜像`centos`多了一层，下面的三层都是完全一致的。
+
+- docker file中的每条命令执行时都会产生一个镜像层，而且镜像层之间有缓存机制，如果不想使用缓存机制，可以在`docker build`命令中加上参数`--no-cache`。
+
+### docker file构建流程
+
+1. 基于基础镜像启动一个容器
+2. 顺序执行docker file中的命令，对容器进行修改
+3. 提交容器的修改，生成新的镜像
+4. 基于新的镜像启动新的容器，移除用于执行命令的容器
+5. 重复2~4直到镜像全部构建完毕
+
+### docker file指令
+
+```shell
+# docker file支持 #开头格式的注释
+- FROM 基础镜像
+- MAINTAINER 姓名+邮箱，声明作者，可以是任意字符串。推荐格式：name<email>
+- WORKDIR 指定工作目录，为后面的RUN、CMD、ENTRYPOINT、ADD或COPY指令设置镜像中的当前工作目录
+- COPY 从构建目录复制本地文件到镜像中，COPY支持两种形式： COPY src dest与COPY ["src", "dest"]。
+- ADD 与COPY类似，会自动解压归档文件（各种压缩包）
+- VOLUME 挂载的目录
+- EXPOSE 暴露端口
+- RUN 容器中执行指定的命令，常用于安装软件，常常存在多个RUN指令，每个RUN指令都会被执行。
+- CMD 容器启动时运行的命令，Dockerfile中可以有多个CMD指令，但只有最后一个生效。CMD会被docker run之后的参数替换。
+- ENTRYPOINT，容器启动时的命令，可以追加。（Dockerfile中可以有多个ENTRYPOINT指令，但只有最后一个生效）
+```
+
+- 指定`RUN、CMD、ENTRYPOINT`三种指令的两种格式
+  - shell格式：`RUN|CMD|ENTRYPOINT $COMMAND`，`$COMMAND`会被`/bin/sh -c $COMMAND`解析执行。
+  - exec格式：`RUN|CMD|ENTRYPOINT ["$COMMAND","PARAM 1","PARAM 2","PARAM N"]`，`$COMMAND`不会被解析执行。
+- exec格式下，CMD或docker run之后的参数会被当作参数传递给ENTRYPOINT。shell格式下，ENTRYPOINT会忽略其它指令提供的额外参数。
+
+![image-20210523114203688](image-20210523114203688.png)
+
+![image-20210523114630552](image-20210523114630552.png)
+
+# 镜像的发布
+
+> 在一个主机上编辑好了docker file文件并成功构建了镜像，怎么在别的主机上进行同样的操作呢
+
+- 复制docker file到其它主机
+- 将镜像推送到远程仓库，其它主机再从远程仓库拉取
