@@ -29,10 +29,12 @@
 - [编排](./docker/06-编排/index.md)
 - [集群](./docker/07-集群/index.md)
 
+# Zookeeper
+
 # Kafka
 
-# Hadoop
+- [初体验（包含集群搭建）](./kafka/01-初体验/index.md)
 
-# Zookeeper
+# Hadoop
 
 # Flink
