@@ -16,6 +16,8 @@
 
 ![image-20210524095741097](image-20210524095741097.png)
 
+- `ip addr`命令如果找不到，需要安装依赖，`apt-get update && apt-get install iproute2`。
+
 ## None网络
 
 - 完全隔离的无网络状态，适用于安全性要求高的容器。
@@ -35,13 +37,23 @@
 
 ![image-20210523224044472](image-20210523224044472.png)
 
-![image-20210523223506783](image-20210523223506783.png)
+![image-20210525184006319](image-20210525184006319.png)
+
+![image-20210525184046494](image-20210525184046494.png)
 
 ## 自定义网络
 
 ```
 docker network create --drive=bridge|overlay|macvlan network_name
 ```
+
+- 可以指定子网网段与网关
+
+![image-20210525191739288](image-20210525191739288.png)
+
+![image-20210525191912052](image-20210525191912052.png)
+
+- `docker network connect [OPTIONS] NETWORK CONTAINER`，将容器加入到指定网络中。（一个容器，多个IP地址）
 
 #容器间通信
 
@@ -51,7 +63,7 @@ docker network create --drive=bridge|overlay|macvlan network_name
 
 ## Docker DNS通信
 
-- 用户自定义的网络中，可以使用容器名称进行通信，Docker内部的DNS服务将容器名称转换为对应的IP。
+- 用户自定义的网络中，可以使用容器名称进行通信，Docker内部的DNS服务将容器名称转换为对应的IP。（自定义网络在集群搭建中十分有必要）
 
 ## joined容器通信
 

@@ -92,3 +92,5 @@ docker run -p 80:80 nginx
 - 做实验搞东搞西，数据太多了看着不舒服，可以使用命令`docker system prune`清除无用的数据。
 
 ![image-20210523165618595](image-20210523165618595.png)
+
+- 批量停止容器`docker stop $(docker ps -q)`
