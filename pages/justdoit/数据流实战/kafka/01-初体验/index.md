@@ -1,8 +1,95 @@
 # 概述
 
+> Kafka是一个分布式的基于发布订阅的消息队列
+
+- Kafka的架构：生产者生产数据到消息队列，消费者从队列拉取数据。
+
+## 应用场景
+
+- 解耦：M个生产者与N个消费者直连，会产生`M*N`个连接；使用消息队列作为中间件解耦，只需要`M+N`个连接。
+- 削峰：缓解生产者速率>>消费者速率的场景，如流量突增的情况。
+
+## 基础架构
+
+- Producer，生产者
+- Topic，主题，用于对消息进行分类
+- Broker，Kafka的节点
+- Partition，分区，Topic的负载均衡机制
+- Replication，复制，高可用。生产者与消费者只与Leader交互
+- Consumer，消费者，从消息队列拉取数据
+- Consumer Group，消费者组，
+
+![Kafka集群架构](Kafka集群架构.jpg)
+
 # 安装配置
 
 ## 单机
+
+### 创建自定义网络
+
+- `docker network create --driver=bridge --subnet=172.18.0.0/16 --gateway=172.18.0.1 my-cluster-network`
+
+| 服务      | IP         | 端口（主机:容器） |
+| --------- | ---------- | ----------------- |
+| zookeeper | 172.18.1.1 | 2181:2181         |
+| kafka     | 172.18.2.1 | 9092:9092         |
+
+### 编写配置文件
+
+- `kafka-single.yml`配置文件
+
+```yml
+version: '3'
+services:
+  zookeeper:
+    image: zookeeper:3.4
+    restart: always
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+    volumes:
+      - "/usr/workspace/volumes/single/zk/data:/data"
+      - "/usr/workspace/volumes/single/zk/datalog:/datalog"
+    networks:
+      my-cluster-network:
+        ipv4_address: 172.18.1.1
+
+  kafka:
+    image: wurstmeister/kafka:2.12-2.4.1
+    restart: always
+    hostname: kafka
+    container_name: kafka
+    privileged: true
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - "/usr/workspace/volumes/single/kafka/logs:/kafka"
+    networks:
+      my-cluster-network:
+        ipv4_address: 172.18.2.1
+    depends_on:
+      - zookeeper
+
+networks:
+  my-cluster-network:
+    external:
+      name: my-cluster-network
+```
+
+### 启动
+
+- `docker-compose -f kafka-single.yml up -d`
+
+### 测试
+
+![image-20210526210529888](image-20210526210529888.png)
 
 ## 集群
 
@@ -25,7 +112,7 @@ docker network create --driver=bridge --subnet=172.18.0.0/16 --gateway=172.18.0.
 
 > yml文件可以使用IDEA或者pycharm格式化一下，然后使用[网站](https://www.bejson.com/validators/yaml_editor/)校验一下
 
-- 编写`docker-compose.yml`配置文件
+- 编写`kafka-cluster.yml`配置文件
 
 ```yml
 version: '3'
@@ -174,7 +261,7 @@ zookeeper端口说明：
 
 ### 启动
 
-- 启动docker compose：`docker-compose -f docker-compose.yml up -d`
+- 启动docker compose：`docker-compose -f kafka-cluster.yml up -d`
 
 ![image-20210525222804044](image-20210525222804044.png)
 
