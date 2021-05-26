@@ -33,7 +33,7 @@
 ## 配置文件
 
 ```
-# 心跳间隔（ms）
+# 心跳间隔（ms），也是zookeeper中一个基本的单位
 tickTime=2000
 # 初始化最大延迟时间(10*tickTime)
 initLimit=10
@@ -43,7 +43,11 @@ syncLimit=5
 clientPort=2181
 # 数据文件目录、数据持久化路径
 dataDir=xxx
-
+dataLogDir=xxx
+# 其它
+autopurge.snapRetainCount=3
+autopurge.purgeInterval=0
+maxClientCnxns=60
 # 集群配置项
 server.A=B:C:D（A为服务器编号，B为服务器IP，C为通信端口，D为选举端口）
 ```
