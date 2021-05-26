@@ -4,7 +4,7 @@
 - zookeeper是树形数据结构，每个节点是一个ZNode，每个ZNode路径都是唯一的。每个节点默认存储1MB数据。
 
 ```
-- /								路径：/
+-- /							路径：/
 	-- /node1					路径：/node1
 		-- /test1				路径：/node1/test1
 		-- /test2				路径：/node1/test2
@@ -23,10 +23,10 @@
 
 ### 统一命名服务
 
-- 为微服务提供命名服务
+- 为微服务提供命名服务，树形数据结构也挺适合公司里面的团队结构的。
 
 ```
-- /
+-- /
 	-- /services
 		-- /login_services
 			- IP1
@@ -108,6 +108,7 @@ docker-compose -f zk-single.yml up -d
 | zookeeper1 | 172.18.1.1 | 2181:2181         |
 | zookeeper2 | 172.18.1.2 | 2182:2181         |
 | zookeeper3 | 172.18.1.3 | 2183:2181         |
+
 ### 编写配置文件
 
 - `zk-cluster.yml`
