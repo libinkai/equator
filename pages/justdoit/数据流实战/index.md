@@ -42,8 +42,12 @@
 # Kafka
 
 > 一种消息队列，常常用于流处理的数据管道。
+>
+> 视频教程主要有：[尚硅谷的视频](https://www.bilibili.com/video/BV1a4411B7V9?from=search&seid=15877153288784969379)
 
 - [初体验（包含集群搭建）](./kafka/01-初体验/index.md)
+- [使用教程](./kafka/02-使用教程/index.md)
+- [原理](./kafka/03-原理/index.md)
 
 # Hadoop
 

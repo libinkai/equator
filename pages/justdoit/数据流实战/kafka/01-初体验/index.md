@@ -17,7 +17,7 @@
 - Partition，分区，Topic的负载均衡机制
 - Replication，复制，高可用。生产者与消费者只与Leader交互
 - Consumer，消费者，从消息队列拉取数据
-- Consumer Group，消费者组，
+- Consumer Group，消费者组，消费者组内的所有成员一起订阅某个主题的所有分区，一个消费者组中，每一个分区只能由组内的一个消费者订阅。
 
 ![Kafka集群架构](Kafka集群架构.jpg)
 
