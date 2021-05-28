@@ -95,19 +95,88 @@
 
 ## 消费方式
 
+- push，broker将消息推向消费者。很难适应消费速率不同的消费者。
+- pull，Kafka的消费方式，消费速率由消费者决定，缺点是轮询比较耗费资源，可以通过参数timeout控制轮询等待时长。
+
 ## 分区分配策略
+
+### Round Robin
+
+- 从消费者组角度分配
+
+- 将消费者组订阅的主题当作一个整体来轮询
+
+```
+如消费者组（A，B），订阅主题（T1，T2），T1、T2各自有三个分区。
+则最终轮询列表为（T1-1，T1-2，T1-3，T2-1，T2-2，T2-3）集合排序后的列表
+```
+
+- 好处是消费者之间分配的partition比较均匀，缺点是需要保证消费者组不对订阅的主题有不同的要求。如消费者A只处理T1的消息，消费者B只处理T2的消息，这种场景会导致消费者消费的消息可能会混乱，不适合轮询处理。
+
+### Range
+
+- 默认的策略
+- 从主题角度分配
+
+```
+如消费者组（A，B），订阅主题（T1，T2），T1、T2各自有三个分区。
+消费者A得到partition（T1-1，T1-2，T2-1，T2-2），消费者B得到（T1-3，T2-3），消费者组订阅的主题越多，消费者之间的partition差异会越来越大。
+```
+
+### 分配时机
+
+- 增加（启动消费者）或者删除（宕机）消费者时，触发重新分配
 
 ## offset保存机制
 
+> Kafka 0.9版本之前，consumer默认将offset保存在zookeeper中。后续版本默认将offset保存到Kafka的一个topic `__consumer_offsets`中
+
+- 修改`consumer.properties`配置文件中的`exclude.internal.topics=false`，使得消费者可以消费系统主题。
+- 启动消费者时指定配置文件：`bin/kafka-console-consumer.sh --topic __consumer_offsets --zookeeper zoo1:2181 --consumer.config config/consumer.properties --from-beginning`
+
+- offset的保存依据是(消费者组,主题,分区)，便于某个消费者宕机后其它消费者接着消费消息。
+
 ## 消费者组
+
+- 消费者组中消费者数量应该与消费者组订阅的主题partition数量保持一致以充分利用消费者能力。
 
 # 高效读写
 
+## 顺序写磁盘
+
+- producer写入消息时，以追加的形式追加到日志文件末端。顺序写磁盘减少了了磁盘寻址时间。
+
+## 零拷贝机制
+
+- 减少读写中间过程
+
+![image-20210528123742663](image-20210528123742663.png)
+
+![image-20210528123814308](image-20210528123814308.png)
+
+
+
+## 集群分区机制
+
+- 分布式读写
+
 # Zookeeper与Kafka
 
-# Ranger分区
+- Kafka集群中的一个broker会被选举为controller，负责管理集群broker的上下线，所有topic的分区副本分配和leader分配等协调工作。controller依赖于zookeeper。
+- controller是抢占式的，一般是先启动的broker会成为controller。
 
 # 事务
 
+> 0.11版本后Kafka支持事务，在保证Exactly Once语义基础上使得生产者和消费者可以跨分区和会话实现事务。
 
+- 事务使得Exactly Once语义可以跨分区与会话
+
+## Producer事务
+
+- 引入一个全局唯一的TransactionID，并将Producer获得的PID和TransactionID绑定，Producer宕机重启之后可以根据TransactionID找回PID。
+- Kafka通过Transaction Coordinator管理事务，负责将事务写入内部Topic进行保存。
+
+## Consumer事务
+
+- 消费者事务保证较弱：消费者可以通过offset访问任意的消息，同一个事务的消息也有可能由于segment的删除而被删除。
 
