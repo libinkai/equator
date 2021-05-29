@@ -1,0 +1,111 @@
+{
+  "德邦快递": {
+    "44": {
+      "step_price": [
+        {
+          "ceiling": 6,
+          "price": 15.2,
+          "price_type": 1
+        },
+        {
+          "ceiling": 10000,
+          "price": 1.6,
+          "price_type": 2
+        }
+      ],
+      "discount": 1
+    },
+    "11": {
+      "step_price": [
+        {
+          "ceiling": 6,
+          "price": 16.8,
+          "price_type": 1
+        },
+        {
+          "ceiling": 10000,
+          "price": 1.6,
+          "price_type": 2
+        }
+      ],
+      "discount": 1
+    },
+    "50": {
+      "step_price": [
+        {
+          "ceiling": 6,
+          "price": 9.6,
+          "price_type": 1
+        },
+        {
+          "ceiling": 10000,
+          "price": 0.6,
+          "price_type": 2
+        }
+      ],
+      "discount": 1
+    }
+  },
+  "顺丰快递": {
+    "44": {
+      "step_price": [
+        {
+          "ceiling": 40,
+          "price": 72.5,
+          "price_type": 1
+        },
+        {
+          "ceiling": 120,
+          "price": 1.95,
+          "price_type": 2
+        },
+        {
+          "ceiling": 10000,
+          "price": 1.65,
+          "price_type": 2
+        }
+      ],
+      "discount": 0.8
+    },
+    "11": {
+      "step_price": [
+        {
+          "ceiling": 40,
+          "price": 89,
+          "price_type": 1
+        },
+        {
+          "ceiling": 120,
+          "price": 1.9,
+          "price_type": 2
+        },
+        {
+          "ceiling": 10000,
+          "price": 1.5,
+          "price_type": 2
+        }
+      ],
+      "discount": 0.8
+    },
+    "50": {
+      "step_price": [
+        {
+          "ceiling": 40,
+          "price": 29,
+          "price_type": 1
+        },
+        {
+          "ceiling": 120,
+          "price": 1.0,
+          "price_type": 2
+        },
+        {
+          "ceiling": 10000,
+          "price": 0.9,
+          "price_type": 2
+        }
+      ],
+      "discount": 0.8
+    }
+  }
+}
