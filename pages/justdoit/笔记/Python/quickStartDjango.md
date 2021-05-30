@@ -156,13 +156,6 @@ urlpatterns = [
     path('<int:question_id>/vote/', views.vote, name='vote'),
 ]
 ```
-- 修改对应的模板
-```
-<li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>
-修改为
-<li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
-```
-
 # 通用视图
 > 这些视图反映基本的 Web 开发中的一个常见情况：根据 URL 中的参数从数据库中获取数据、载入模板文件然后返回渲染后的模板。 由于这种情况特别常见，Django 提供一种快捷方式，叫做“通用视图”系统
 ## ListView
