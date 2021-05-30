@@ -53,7 +53,7 @@
 ### 消息发送流程
 
 - 消息提交到线程共享变量RecordAccumulator（相当于缓冲队列），Sender线程不断地从RecordAccumulator中拉取消息发送到Kafka broker。
-- 消息流向：Producer->Interceptors->Serializer->Partitioner->RecordAccumulator->Sender->
+- 消息流向：Producer->Interceptors->Serializer->Partitioner->RecordAccumulator->Sender->Topic
 - 参数配置
   - `batch.size`，发送数据的批次大小
   - `linger.ms`，攒batch的最长等待时间
