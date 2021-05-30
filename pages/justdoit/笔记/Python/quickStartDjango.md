@@ -141,14 +141,6 @@ def detail(request, question_id):
     return render(request, 'polls/detail.html', {'question': question})
 ```
 - get_list_or_404() 函数，工作原理和 get_object_or_404() 一样，除了 get() 函数被换成了 filter() 函数。如果列表为空的话会抛出 Http404 异常
-## 避免URL硬编码
-- 硬编码和强耦合的链接，对于一个包含很多应用的项目来说，修改起来是十分困难的
-- 然而因为在polls.urls的url()函数中通过name参数为URL定义了名字，你可以使用`{% url %}`标签代替它
-```
-<li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
-修改为
-<li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>
-```
 ## 为URL添加命名空间
 - 在一个真实的 Django 项目中，可能会有五个，十个，二十个，甚至更多应用。Django 如何分辨重名的 URL？
 ```
@@ -173,7 +165,8 @@ urlpatterns = [
 
 # 通用视图
 > 这些视图反映基本的 Web 开发中的一个常见情况：根据 URL 中的参数从数据库中获取数据、载入模板文件然后返回渲染后的模板。 由于这种情况特别常见，Django 提供一种快捷方式，叫做“通用视图”系统
-##  ListView
+## ListView
+
 - 显示一个对象列表
 - ListView 使用一个叫做 <app name>/<model name>_list.html 的默认模板；我们使用 template_name 来告诉 ListView 使用我们创建的已经存在的 "polls/index.html" 模板
 ## DetailView
