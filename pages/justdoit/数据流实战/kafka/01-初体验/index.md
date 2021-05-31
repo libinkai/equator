@@ -343,3 +343,141 @@ public class MyProducer {
 
 ![image-20210530163645099](image-20210530163645099.png)
 
+## 代码无法与Kafka集群通信
+
+- [参考案例](https://blog.csdn.net/zhaominpro/article/details/79068141?utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control)
+- 修改配置文件
+
+```
+version: '3'
+services:
+  zoo1:
+    image: zookeeper:3.4
+    restart: always
+    hostname: zoo1
+    container_name: zoo1
+    ports:
+      - 2181:2181
+    volumes:
+      - "/usr/workspace/volumes/zkcluster/zoo1/data:/data"
+      - "/usr/workspace/volumes/zkcluster/zoo1/datalog:/datalog"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+    networks:
+      my-cluster-network:
+        ipv4_address: 172.18.1.1
+
+  zoo2:
+    image: zookeeper:3.4
+    restart: always
+    hostname: zoo2
+    container_name: zoo2
+    ports:
+      - 2182:2181
+    volumes:
+      - "/usr/workspace/volumes/zkcluster/zoo2/data:/data"
+      - "/usr/workspace/volumes/zkcluster/zoo2/datalog:/datalog"
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+    networks:
+      my-cluster-network:
+        ipv4_address: 172.18.1.2
+
+  zoo3:
+    image: zookeeper:3.4
+    restart: always
+    hostname: zoo3
+    container_name: zoo3
+    ports:
+      - 2183:2181
+    volumes:
+      - "/usr/workspace/volumes/zkcluster/zoo3/data:/data"
+      - "/usr/workspace/volumes/zkcluster/zoo3/datalog:/datalog"
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+    networks:
+      my-cluster-network:
+        ipv4_address: 172.18.1.3
+
+  kafka1:
+    image: wurstmeister/kafka:2.12-2.4.1
+    restart: always
+    hostname: kafka1
+    container_name: kafka1
+    privileged: true
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka1
+      KAFKA_LISTENERS: PLAINTEXT://kafka1:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.168.19.129:9092
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181,zoo2:2181,zoo3:2181
+    volumes:
+      - "/usr/workspace/volumes/kafkaCluster/kafka1/logs:/kafka"
+    networks:
+      my-cluster-network:
+        ipv4_address: 172.18.2.1
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+
+  kafka2:
+    image: wurstmeister/kafka:2.12-2.4.1
+    restart: always
+    hostname: kafka2
+    container_name: kafka2
+    privileged: true
+    ports:
+      - 9093:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka2
+      KAFKA_LISTENERS: PLAINTEXT://kafka2:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.168.19.129:9093
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181,zoo2:2181,zoo3:2181
+    volumes:
+      - "/usr/workspace/volumes/kafkaCluster/kafka2/logs:/kafka"
+    networks:
+      my-cluster-network:
+        ipv4_address: 172.18.2.2
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+
+  kafka3:
+    image: wurstmeister/kafka:2.12-2.4.1
+    restart: always
+    hostname: kafka3
+    container_name: kafka3
+    privileged: true
+    ports:
+      - 9094:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka3
+      KAFKA_LISTENERS: PLAINTEXT://kafka3:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.168.19.129:9094
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zoo1:2181,zoo2:2181,zoo3:2181
+    volumes:
+      - "/usr/workspace/volumes/kafkaCluster/kafka3/logs:/kafka"
+    networks:
+      my-cluster-network:
+        ipv4_address: 172.18.2.3
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+
+networks:
+  my-cluster-network:
+    external:
+      name: my-cluster-network
+```
+
+- 重启Kafka集群
