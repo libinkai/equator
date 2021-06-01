@@ -37,8 +37,9 @@
 > 视频教程主要有：[尚硅谷的视频](https://www.bilibili.com/video/BV1PW411r7iP?from=search&seid=5377547783698726294)
 
 - [初体验（包含集群搭建）](./zookeeper/01-初体验/index.md)
-- [使用教程](./zookeeper/02-使用教程/index.md)
-- [原理](./zookeeper/03-原理/index.md)
+- [原理](./zookeeper/02-原理/index.md)
+- [使用教程](./zookeeper/03-使用教程/index.md)
+
 
 # Kafka
 
@@ -47,8 +48,9 @@
 > 视频教程主要有：[尚硅谷的视频](https://www.bilibili.com/video/BV1a4411B7V9?from=search&seid=15877153288784969379)
 
 - [初体验（包含集群搭建）](./kafka/01-初体验/index.md)
-- [使用教程](./kafka/02-使用教程/index.md)
-- [原理](./kafka/03-原理/index.md)
+- [原理](./kafka/02-原理/index.md)
+- [使用教程](./kafka/03-使用教程/index.md)
+- [监控](./kafka/04-监控/index.md)
 
 # Hadoop
 
