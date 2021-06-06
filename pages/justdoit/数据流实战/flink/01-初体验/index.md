@@ -89,3 +89,45 @@
   - At-Most-Once，可能丢数据
   - At-Least-Once，可能重复处理数据
   - Exactly-Once，不重不漏数据
+
+# 安装配置
+
+## 单节点
+
+```yml
+version: "2.1"
+services:
+  jobmanager:
+    image: flink:1.9.2-scala_2.12
+    hostname: jobmanager
+    container_name: jobmanager
+    expose:
+      - "6123"
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+  taskmanager1:
+    image: flink:1.9.2-scala_2.12
+    hostname: taskmanager1
+    container_name: taskmanager1
+    expose:
+      - "6121"
+      - "6122"
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    links:
+      - "jobmanager:jobmanager"
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+```
+
+## 集群
+
+```
+
+```
+
