@@ -56,18 +56,22 @@
 
 - 代码中每一个算子都可以单独设置并行度`setParallelism`与slot共享组`slotSharingGroup`。slot共享组中任务可以共享slot，不同组的任务必须占用不同的slot。（共享组默认组为“default”，一个算子不进行设置的话，默认与前一个算子在同一个共享组中）
 
+## 数据传输
+
+- 算子间的数据传输主要有以下两种形式：One-to-One以及Redistribution，具体形式取决于算子的种类。
+- One-to-One（窄依赖）：steam维护者分区以及元素的顺序，map、filter、flatMap算子都是这种类型
+- Redistribution（宽依赖）：steam分区发送变化，keyBy（hash）、broadcast、rebalance（随机）算子都是这种类型，类似于shuffle操作。
+
 ## 程序与数据流
 
 - Flink程序三部曲：Source、Transformation、Sink
 - Flink程序会被映射为逻辑数据流（dataflows、StreamGraph），大部分情况下，程序中的转换运算（transformation）与dataflows中的算子一一对应。
 - 执行图
   - SteamGraph，程序结构的图结构。（Client上生成）
-  - JobGraph，将多个符合条件的节点chain在一起作为一个节点。（Client上生成）
+  - JobGraph，将多个符合条件的节点chain在一起作为一个节点，任务合并的前提条件是算子是窄依赖的（Client上生成）
   - ExecutionGraph，JobGraph的并行化版本，是调度层最核心的数据结构。（JobManager上生成）
   - 物理执行图，并不是具体的数据结构，指的是task部署后形成的“图”。
 
-## 数据传输
+## 任务链
 
-- 算子间的数据传输主要有以下两种形式：One-to-One以及Redistribution，具体形式取决于算子的种类。
-- One-to-One（窄依赖）：steam维护者分区以及元素的顺序，map、filter、flatMap算子都是这种类型
-- Redistribution（宽依赖）：steam分区发送变化，keyBy（hash）、broadcast、rebalance（随机）算子都是这种类型，类似于shuffle操作。
+- **相同并行度**的**one-to-one操作**，可以被链接在一起成为一个task，原来的算子成为里面的subtask。任务链的优化技术可以减少通信的开销。（slot共享组因素除外）

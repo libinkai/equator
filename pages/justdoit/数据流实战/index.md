@@ -63,5 +63,5 @@
 > 批流合一的数据处理框架。
 
 - [初体验（包含集群搭建）](./flink/01-初体验/index.md)
-- [原理](./flink/01-原理/index.md)
-- [使用教程](./flink/01-使用教程/index.md)
+- [原理](./flink/02-原理/index.md)
+- [使用教程](./flink/03-使用教程/index.md)
