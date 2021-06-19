@@ -43,9 +43,9 @@
 
 ## 并行度
 
-- 一个任务（steam）有多个步骤，也就是算子（operator）。
+- 一个任务（stream）有多个步骤，也就是算子（operator）。
 - 一个算子也可以被拆分为多个子任务，一个特定算子的子任务（subtask）的个数被称为它的并行度（parallelism）。
-- 一般情况下（slot默认分组），一个steam的并行度可以认为就是其所有算子中最大的并行度。
+- 一般情况下（slot默认分组），一个stream的并行度可以认为就是其所有算子中最大的并行度。
 
 ## TaskManager与Slot
 
@@ -59,15 +59,15 @@
 ## 数据传输
 
 - 算子间的数据传输主要有以下两种形式：One-to-One以及Redistribution，具体形式取决于算子的种类。
-- One-to-One（窄依赖）：steam维护者分区以及元素的顺序，map、filter、flatMap算子都是这种类型
-- Redistribution（宽依赖）：steam分区发送变化，keyBy（hash）、broadcast、rebalance（随机）算子都是这种类型，类似于shuffle操作。
+- One-to-One（窄依赖）：stream维护者分区以及元素的顺序，map、filter、flatMap算子都是这种类型
+- Redistribution（宽依赖）：stream分区发送变化，keyBy（hash）、broadcast、rebalance（随机）算子都是这种类型，类似于shuffle操作。
 
 ## 程序与数据流
 
 - Flink程序三部曲：Source、Transformation、Sink
 - Flink程序会被映射为逻辑数据流（dataflows、StreamGraph），大部分情况下，程序中的转换运算（transformation）与dataflows中的算子一一对应。
 - 执行图
-  - SteamGraph，程序结构的图结构。（Client上生成）
+  - streamGraph，程序结构的图结构。（Client上生成）
   - JobGraph，将多个符合条件的节点chain在一起作为一个节点，任务合并的前提条件是算子是窄依赖的（Client上生成）
   - ExecutionGraph，JobGraph的并行化版本，是调度层最核心的数据结构。（JobManager上生成）
   - 物理执行图，并不是具体的数据结构，指的是task部署后形成的“图”。
