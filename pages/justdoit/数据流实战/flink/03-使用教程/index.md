@@ -100,9 +100,49 @@ public class SourceFunctionTest {
 - map，一对一转换
 - flatMap，一对一或者一对多转换
 - filter，过滤
+
+```java
+public class BaseTransformation {
+    public static void main(String[] args) throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        // 加上这句代码可以实现顺序输出
+        env.setParallelism(1);
+
+        DataStreamSource<String> fileDataStreamSource = env.readTextFile("src/main/resources/data/sensordata.txt");
+
+        DataStream<Integer> mapStream = fileDataStreamSource.map(String::length);
+
+
+        DataStream<String> flatMapStream = fileDataStreamSource.flatMap(new FlatMapFunction<String, String>() {
+            @Override
+            public void flatMap(String line, Collector<String> collector) throws Exception {
+                String[] fields = line.split(",");
+                for (String field : fields) {
+                    collector.collect(field);
+                }
+            }
+        });
+
+        SingleOutputStreamOperator<String> filterStream = fileDataStreamSource.filter((line) -> line.startsWith("sensor_1"));
+
+        mapStream.print("map");
+        flatMapStream.print("flatMap");
+        filterStream.print("filter");
+
+        env.execute();
+    }
+}
+```
+
 - keyBy，分组：DataStream->KeyedStream，逻辑地将一个流拆分为不相交的分区，每个分区包含具有相同key的元素，在内部以hash的方式实现。
 
 ### 滚动聚合
+
+> 对KeyedStreamd的每一个支流做聚合
+
+- sum
+- min，保留一个字段；minBy，保留全部字段
+- max；maxBy
 
 ### reduce聚合
 
