@@ -146,11 +146,57 @@ public class BaseTransformation {
 
 ### reduce聚合
 
+> KeyedStreamd->DataStream，一个分组数据流的聚合操作，合并当前的元素和上次聚合的结果，产生一个新的结果。（更加一般化的聚合操作）
+
+```java
+public class ReduceAggregationTest {
+    public static void main(String[] args) throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        // 加上这句代码可以实现顺序输出
+        env.setParallelism(1);
+
+        DataStreamSource<String> fileDataStreamSource = env.readTextFile("src/main/resources/data/sensordata.txt");
+
+        // String数据包装为SensorReading
+        DataStream<SensorReading> dataStream = fileDataStreamSource.map((line) -> {
+            String[] fields = line.split(",");
+            return new SensorReading(fields[0], Long.valueOf(fields[1]), Double.valueOf(fields[2]));
+        });
+
+        KeyedStream<SensorReading, Tuple> keyedStream = dataStream.keyBy("id");
+
+        // reduce聚合，取最大的温度值以及最新的时间戳
+        SingleOutputStreamOperator<SensorReading> reduceStream = keyedStream.reduce(new ReduceFunction<SensorReading>() {
+            @Override
+            public SensorReading reduce(SensorReading oldVal, SensorReading newVal) throws Exception {
+                return new SensorReading(oldVal.getId(), newVal.getTimestamp(), Math.max(oldVal.getTemperature(), newVal.getTemperature()));
+            }
+        });
+
+        reduceStream.print();
+
+        env.execute();
+    }
+}
+```
+
 ### 分流
+
+> Split：DataStream->SplitStream，根据某些特征把一个DataStream拆分为多个或者多个DataStream。
+>
+> Select：SplitStream->DataStream，从一个SplitStream中获取一个或者多个DataStream。
+>
+> Split与Select两个操作是分流的一个流程
 
 ### connect合流
 
-### Union合流
+> DataStream，DataStream->ConnectStreams，连接两个保持他们类型的数据流，两个数据流被Connect之后，内部的数据和形式不变，两条流相互独立。需要通过CoMap或者CoFlatMap操作合并为真正的一条数据流。
+
+### union合流
+
+> DataStream->DataStream，连接多条数据类型一致的数据流
+
+![数据流转换](./数据流转换.jpg)
 
 ## Sink
 
