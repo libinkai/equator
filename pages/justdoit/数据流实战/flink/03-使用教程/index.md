@@ -210,6 +210,13 @@ public class ReduceAggregationTest {
 
 ## Flink数据类型
 
+- Flink使用类型信息的概念来表示数据类型，为每个数据类型生成特定的序列化器、反序列化器以及比较器。
+- Flink具有类型提取系统，分析函数的输入和返回类型，以自动获取类型信息。但是再lambda函数或者泛型类型场景下，需要程序显式地提供类型信息。
+- 具体类型
+  - Java、Scala的基础类型以及其包装类型
+  - Java、Scala的元组类型Tuple（最大25元组）
+  - Scala样例类（Scala Classes）、Java简单对象（POJO，需要有空参构造方法以及setter、getter方法）
+
 ## UDF函数类
 
 ## 数据重分区操作
