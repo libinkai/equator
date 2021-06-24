@@ -200,13 +200,20 @@ public class ReduceAggregationTest {
 
 ## Sink
 
+- 对外的输出操作都需要使用Sink完成，`stream.addSink(new SinkFunction(xxx))`，Flink提供了一些连接器，其余的需要用户自定义
+- Kafka等消息队列可以作为source来源或者sink的目的地，HDFS、Redis等一般只作为sink目的地。
+
 ### Kafka
+
+- 使用Kafka作为数据管道的两端，Flink进行ETL操作
 
 ### Redis
 
 ### ES
 
 ### JDBC
+
+- 继承RichSinkFunction
 
 ## Flink数据类型
 
@@ -219,7 +226,78 @@ public class ReduceAggregationTest {
 
 ## UDF函数类
 
+### 函数类
+
+- Flink暴露了所有UDF函数的接口（实现方式为接口或者抽象类），如MapFunction、FilterFunction。
+
+### 匿名函数
+
+- lambda表达式
+
+### 富函数
+
+- DataStream API提供的函数类接口，所有的Flink的函数类都有其Rich版本。其可以获取运行环境的上下文（`getRuntimeContext`，获取子任务编号、上下文、状态等信息），并拥有一些生命周期方法（`open`、`close`），可以实现更加复杂的功能。如RichMapFunction、RichFilterFunction。
+
 ## 数据重分区操作
 
+- forward，传播到下一个分区
+- keyBy，哈希重分区
+- broadcast，广播到所有下游
+- shuffle，随机传播到下游
+- reblance，轮询传播
+- rescale，分组轮询
+- global，将全部数据汇总到下游第一个分区
+- partitionCustom，自定义重分区分区器
+
 # 窗口API
+
+## 基本概念
+
+> 窗口（window）就是将无限流切割为有限流的一种方式，其将无限流数据分发到有限大小的桶（bucket）中进行分析。
+
+## 窗口的类型
+
+### 时间窗口（Time Window）
+
+> 按照时间开窗
+
+#### 滚动时间窗口（Tumbling）
+
+- 将数据依据固定的窗口长度进行切分，时间对齐，窗口长度（`window_size`）固定，没有重叠。
+
+#### 滑动时间窗口（Sliding）
+
+- 滚动窗口的广义形式，由固定的窗口长度（`window_size`）和滑动间隔（`window_slide`）组成，可以有重叠（一条数据最多属于`window_size/window_slide`个窗口）
+
+#### 会话窗口
+
+- 一段时间`timeout`没有接收到新数据就会生成新的窗口，时间不对齐
+
+### 计数窗口（Count Window）
+
+> 按照数据条数开窗
+
+#### 滚动计数窗口
+
+#### 滑动计数窗口
+
+## 窗口分配器
+
+- 使用window方法定义一个窗口，基于这个window去做一些聚合操作。或者使用timeWindow或者countWindow方法直接定义时间窗口与计数窗口。
+- 开窗的前提是处理keyedStream，否则使用windowAll方法，需要将所有数据发送到下游同一个算子，类似于global的传播方式。
+
+## 窗口增量聚合
+
+> 每条数据到来就进行计算，保持一个简单的状态，如ReduceFunction，AggregationFunction。
+
+- ReduceFunction即reduce聚合
+- AggregationFunction<IN,ACC,OUT>，ACC表示累加器
+
+## 窗口全窗口聚合
+
+> 先把窗口所有的数据收集起来再处理，计算时遍历所有数据处理，如ProcessFunction、WindowFunction。 统计平均数、中位数等场景下需要用到。更加灵活，可操作性更强。
+
+- WindowFunction<IN,OUT,KEY,W>
+
+## 其它可选API
 
