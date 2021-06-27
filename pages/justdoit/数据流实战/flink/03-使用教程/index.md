@@ -301,3 +301,13 @@ public class ReduceAggregationTest {
 
 ## 其它可选API
 
+# 时间语义
+
+- Event Time：事件创建的时间
+- Ingestion Time：数据进入Flink的时间
+- Processing Time：执行操作算子的本地系统时间，与机器相关
+
+![image-20210627205306914](image-20210627205306914.png)
+
+- 一般来说，EventTime更为重要，其代表了事件的实际发生时间，可以从日志数据时间戳中提取。 （EventTime使用更大的时间延迟来换取相对更加准确的计算结果）
+- 时间语义的设置在环境中进行设置
