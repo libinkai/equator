@@ -311,3 +311,32 @@ public class ReduceAggregationTest {
 
 - 一般来说，EventTime更为重要，其代表了事件的实际发生时间，可以从日志数据时间戳中提取。 （EventTime使用更大的时间延迟来换取相对更加准确的计算结果）
 - 时间语义的设置在环境中进行设置
+
+# WaterMark
+
+## 乱序数据带来的问题
+
+- 当Flink以EventTime模式处理数据时，其根据数据的时间戳来处理基于时间的算子，由于网络、分布式等原因，会导致乱序数据的产生。
+
+## WaterMark基本原理
+
+> 由于Flink延迟较低，迟到数据的延迟也不高，数据比较集中
+
+- 可以这样处理乱序事件：窗口应该关闭的时候，不立即触发窗口的关闭而是等待一段事件，等迟到的数据来了之后关闭，一般结合window使用。WaterMark让程序自己平衡延迟和结果正确性，它的设置需要一定的经验。
+- WaterMark是一条特殊的带有时间戳的数据记录，时间戳必须单调递增以确保任务的事件时间时钟在向前推进而不是后退。
+
+## WaterMark在任务间的传递
+
+- WaterMark是一条特殊的数据，从上游传递到下游，采取广播的方式。
+- 算子作为下游接收WaterMark时，保留每个上游任务最新的的WaterMark即分区水位线，算子选取做小的WM作为自己的事件时钟。
+
+## WaterMark的使用
+
+- 基本流程：环境中设置时间语义，提取数据的时间戳，生成WaterMark。`assignTimestampAndWatermarks`方法，`BoundedOutOfOrdernessTimestampExtractor`时间戳抽取类。`AscendingTimestampExtractor`用来处理正常排序的升序数据。
+- WaterMark可以间断性生成（WM生成很多），周期性生成（适合数据量大的情况）
+
+## 设定原则
+
+- 经验值
+- WM设置延迟时间太长，结果产出可能很慢，解决方法是到达水位线前输出一个近似的结果。VM设置延迟时间太短，可能收到错误的结果，可以通过Flink的迟到数据处理机制纠正结果。
+
