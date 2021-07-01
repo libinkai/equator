@@ -345,6 +345,7 @@ public class ReduceAggregationTest {
 
 - 由一个任务维护，并且用来计算某个结果的所有数据，都属于这个任务的状态。可以认为是一个本地变量，可以被任务的业务逻辑访问。
 - Flink会进行状态管理，保证状态一致性，故障处理以及高效存储访问。
+- 可以在富函数类的close生命周期方法中清理状态资源。
 
 ## 算子状态
 
@@ -362,4 +363,23 @@ public class ReduceAggregationTest {
 
 > Keyed State，根据输入数据流中定义的键key来维护和访问
 
+- 键控状态根据数据流中定义的键来维护和访问的。Flink为每个key维护一个状态实例，并将具有相同键的所有数据都分到同一个算子任务中，该任务维护和处理这个key对应的状态。
+- 当任务处理一条数据时，其自动将状态的访问范围限定为当前数据的key。
+
+### 数据结构
+
+- Value State
+- List State
+- Map State
+- Reducing State & Aggregation State
+
 ## 状态后端
+
+- 状态的存储，访问以及维护由一个可插入的组件决定，该组件就是状态后端（State Backend）。其主要负责：本地状态管理，将检查点（CheckPoint）状态写入远程存储。
+
+### 类型
+
+- MemoryStateBackend：内存级别的状态后端，状态保存在TaskManager的JVM堆上，检查点状态存储在JobManager的JVM堆上。快速但是不稳定。
+- FsStateBacked：将检查点写入远程持久的文件系统（HDFS）上，本地存储仍然保存在本地。
+
+- RocksDBStateBackend：将所有状态序列化后写入本地RocksDB中存储。（适合需要消耗大量内存的任务）
