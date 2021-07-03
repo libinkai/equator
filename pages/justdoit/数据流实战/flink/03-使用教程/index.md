@@ -383,3 +383,26 @@ public class ReduceAggregationTest {
 - FsStateBacked：将检查点写入远程持久的文件系统（HDFS）上，本地存储仍然保存在本地。
 
 - RocksDBStateBackend：将所有状态序列化后写入本地RocksDB中存储。（适合需要消耗大量内存的任务）
+
+# ProcessFunction API（底层API）
+
+> 访问时间戳（事件时间）、watermark，以及注册定时事件
+
+- 根据不同的数据流，需要调用不同的ProcessFunction（都是抽象类）
+
+## KeyedProcessFunction
+
+- 获取时间服务，定义定时事件（删除定时器需要利用键控状态保存定时器触发时间，利用该时间进行删除），侧输出流（自定义侧输出流实现分流操作）
+
+## CoProcessFunction
+
+
+
+# 容错机制
+
+# 状态一致性
+
+# Table API
+
+# Flink SQL
+
