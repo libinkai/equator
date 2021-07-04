@@ -30,6 +30,14 @@
 - [编排](./docker/06-编排/index.md)
 - [集群](./docker/07-集群/index.md)
 
+# Hadoop
+
+> 分布式系统基础框架，适合做批处理。
+>
+> 视频教程：[尚硅谷的视频](https://www.bilibili.com/video/BV1cW411r7c5)
+
+# Hive
+
 # Zookeeper
 
 > 集群节点之间的协调者。
@@ -51,12 +59,6 @@
 - [原理](./kafka/02-原理/index.md)
 - [使用教程](./kafka/03-使用教程/index.md)
 - [监控](./kafka/04-监控/index.md)
-
-# Hadoop
-
-> 分布式系统基础框架，适合做批处理。
->
-> 视频教程：[尚硅谷的视频](https://www.bilibili.com/video/BV1cW411r7c5)
 
 # Flink
 
