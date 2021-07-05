@@ -483,7 +483,60 @@ public class ReduceAggregationTest {
 - 内部系统：checkpoints机制
 - sink：Kafka Producer，采取两阶段提交sink机制
 
-# Table API
+# Table API与Flink SQL
 
-# Flink SQL
+> Table API 是一套内嵌在Java和Scala语言中的查询API，它允许以非常直观的方式组合来自一些关系运算符的查询。Flink SQL支持基于实现了SQL标准的Apache Calcite。
+
+## 基本程序结构
+
+```java
+// 创建表执行环境
+StreamTableEnvironment tableEnv = ...
+// 创建一张表，用于读取数据
+tableEnv.connect(...).createTemporaryTable("inputTable")
+// 创建一张表，用于输出数据
+tableEnv.connect(...).createTemporaryTable("outputTable")
+// 通过Table API查询算子，得到一张结果表
+Table result = tableEnv.from("inputTable").select(...);
+// 或者通过SQL查询语句，得到一张结果表
+Table sqlResult = tableEnv.sqlQuery("SELECT XXX");
+// 输出结果
+result.insertInto("")
+```
+
+## 表环境配置
+
+## 表的创建
+
+## 表的查询
+
+- Table API基于代表“表”的Table类，提供对应的操作处理API，这些API会返回一个新的Table对象，表示对输入表进行转换操作的结果。
+
+## 表的输出
+
+- 输出到文件、Kafka，只能追加不能修改
+
+## 更新模式
+
+- 追加模式 Append：只做插入操作
+- 撤回模式 Retract：插入编码为Add，删除编码为Retract，更新编码为上一条的Retract和下一条的Add消息。
+- 更新插入 Upsert：更新与插入都编码为Upsert消息（需要指定key），删除编码为Delete消息。
+
+## 表流转换
+
+### 将表转换为流
+
+- 追加模式：用于表只会被插入操作更改的场景
+- 撤回模式：用于任何模式，转换后的数据会增加一个布尔标识位，用它来表示数据是新增还是删除。
+
+### 将流转换为表
+
+- 直接转换即可，`tableEnv.fromDataStream(dataStream)`
+
+## 动态表
+
+- 与表示批处理数据的静态表，动态表是随时间变化的
+- 动态表可以像静态的批处理表一样进行查询，查询一个动态表会产生持续查询（Continuous Query），持续查询永不停止，会在动态表上做计算处理，并将结果生成新的动态表。
+
+![image-20210706074748218](image-20210706074748218.png)
 
