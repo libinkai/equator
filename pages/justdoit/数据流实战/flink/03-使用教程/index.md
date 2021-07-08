@@ -555,3 +555,43 @@ result.insertInto("")
 - 使用`xxx.rowtime`定义事件时间（使用哪个字段已经通过assignTimestampsAndWatermark指定）
 - 也可以在定义Table Schema时定义
 - 也可以在DDL SQL中指定
+
+##  窗口
+
+### 分组窗口
+
+- Group Windows，根据时间或者行计数间隔，将行聚合到有限的组（Group）中，并对每个组的数据执行一次聚合函数。
+
+### 开窗函数
+
+- Over Windows，针对每个输入行，计算相邻行范围内的聚合。
+- 指定partition、指定orderBy、指定preceding字段
+
+- 类型
+  - 无界：preceding指定常量（over window、row count window）
+  - 有界：preceding指定范围
+
+## 函数
+
+- 比较函数、逻辑函数、算术函数、字符串函数、时间函数、聚合函数。
+
+## 自定义函数
+
+### 标量函数
+
+- 将0、1或者多个标量值映射到新的标量值，有一个eval的求值方法，决定了函数的行为。
+
+### 表函数
+
+- 将输入的0、1或者多个标量值，返回任意数量的数据行作为输出而不是标量值。
+
+### 聚合函数
+
+- 将一个表中的数据聚合成标量值。
+- 继承自AggregateFunction，实现createAccumulator、getValue方法，自己实现accumulate方法
+
+### 表聚合函数
+
+- 将一个表中数据，聚合为多行和多列的结果**表**（二维的）
+
+- 继承TableAggregateFunction抽象类
