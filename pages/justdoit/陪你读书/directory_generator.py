@@ -39,6 +39,14 @@ def test_normalize_path():
     print(normalize_path('X:/libinkai.github.io/pages/justdoit/陪你读书/index.md'))
 
 
+def build_markdown_path(raw_path):
+    return re.sub(re.escape(os.sep), '/', raw_path)
+
+
+def test_build_markdown_path():
+    print(build_markdown_path('X:\libinkai.github.io\pages\justdoit\陪你读书\index.md'))
+
+
 def build_markdown_statement(file_path_list):
     """
     构建符合Markdown语法的目录片段，提取最后一个目录名作为展示名
@@ -48,9 +56,9 @@ def build_markdown_statement(file_path_list):
     result_list = []
     for path in file_path_list:
         if path.count(os.sep) >= 2:
-            result_list.append(f"- [{extract_name(path)}]({path})")
+            result_list.append(f"- [{extract_name(path)}]({build_markdown_path(path)})")
         else:
-            result_list.append(f"- [{path}]({path})")
+            result_list.append(f"- [{path}]({build_markdown_path(path)})")
     return result_list
 
 
