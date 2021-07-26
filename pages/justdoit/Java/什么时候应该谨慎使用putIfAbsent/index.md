@@ -91,4 +91,3 @@ public class NewHashSetBetterTest {
 - 除了`putIfAbsent`语法，`getOrDefault`等类似的语法也有可能出现这种问题。看起来不起眼的一行代码，却是一次线上问题的罪魁祸首QAQ。
 
 - 结论很简单：大数据量下，还是需要谨慎使用`putIfAbsent`语法，`map.putIfAbsent("equator", Sets.newHashSet())`这种写法的代码会造成重复创建大量无用对象，导致频繁GC，平平淡淡才是真！
-
