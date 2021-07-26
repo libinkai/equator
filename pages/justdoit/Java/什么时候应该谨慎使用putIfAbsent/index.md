@@ -66,6 +66,7 @@ public class NewHashSetBetterTest {
 
 ![image-20210725202845800](image-20210725202845800.png)
 
+- 为什么频繁创建对象，并且这些对象没有被引用，Full GC还是会频繁发生呢？这是因为由于空间担保策略的存在，在发生Minor GC之前，虚拟机会检查老年代最大可用的连续空间是否大于新生代所有对象的总空间。如果老年代剩余连续内存空间 < 历次晋升到老年代的对象的平均大小 < 新生代对象总空间，则不会触发Young GC而是转为触发FullGC。[详见](https://blog.csdn.net/wangxuelei036/article/details/108180150)
 - 既然在GC层面二者行为有较大差别，那么其执行耗时也必定有所不同。（此时将`Thread.sleep(1)`注释掉）
 
 | N\|执行耗时（ms） | 使用`putIfAbsent`语法 | 不使用`putIfAbsent`语法 |
