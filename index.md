@@ -15,3 +15,6 @@
 - [本博客地址，www.equator8848.xyz](https://www.equator8848.xyz/)
 - [github](https://github.com/libinkai)
 
+# 备案信息
+
+- [**粤ICP备18122194号-1**](https://beian.miit.gov.cn/)
